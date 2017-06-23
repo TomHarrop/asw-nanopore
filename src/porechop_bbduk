@@ -9,14 +9,14 @@ if [[ ! -e "${outdir}" ]]; then
 fi
 
 # bbduk contaminants
- fref="bin/bbtools/resources/phix174_ill.ref.fa.gz,"
-fref+="bin/bbtools/resources/sequencing_artifacts.fa.gz,"
-fref+="bin/bbtools/resources/adapters_no_transposase.fa.gz"
+ fref="bin/bbmap/resources/phix174_ill.ref.fa.gz,"
+fref+="bin/bbmap/resources/sequencing_artifacts.fa.gz,"
+fref+="bin/bbmap/resources/adapters_no_transposase.fa.gz"
 
 porechop -i "${input_reads}" --threads 20 \
-    | bin/bbmap/bbduk threads=20 -Xmx100G \
+    | bin/bbmap/bbduk.sh threads=20 -Xmx100G \
     in=stdin.fastq \
-    out=${outdir}/trimmed.fastq.gz \
+    "out=${outdir}/trimmed.fastq.gz" \
     minavgquality=6 \
     ziplevel=9 \ 
     "ref=${fref}" \
