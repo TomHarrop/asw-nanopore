@@ -26,7 +26,7 @@ porechop -i "${input_reads}" --threads 20 \
     minavgquality=6 \
     ziplevel=9 \
     "ref=${fref}" \
-    k=23 hdist=2 mink=10 hdist2=1 \
+    k=23 hdist=2 \
     "stats=${outdir}/stats.txt" \
     "bhist=${outdir}/bhist.txt" \
     "qhist=${outdir}/qhist.txt" \
