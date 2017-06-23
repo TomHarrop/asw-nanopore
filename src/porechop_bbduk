@@ -1,7 +1,12 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
+
+set -eu
 
 input_reads="data/20170621_0351_ASW_12_05X_SPRI/merged.fq.gz"
 outdir="output/porechop_bbduk"
+if [[ ! -e "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
 
 # bbduk contaminants
  fref="bin/bbtools/resources/phix174_ill.ref.fa.gz,"
