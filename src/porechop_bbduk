@@ -1,0 +1,26 @@
+ #!/usr/bin/env bash
+
+input_reads="data/20170621_0351_ASW_12_05X_SPRI/merged.fq.gz"
+outdir="output/porechop_bbduk"
+
+# bbduk contaminants
+ fref="bin/bbtools/resources/phix174_ill.ref.fa.gz,"
+fref+="bin/bbtools/resources/sequencing_artifacts.fa.gz,"
+fref+="bin/bbtools/resources/adapters_no_transposase.fa.gz"
+
+porechop -i "${input_reads}" --threads 20 \
+    | bbduk threads=20 -Xmx100G \
+    in=stdin.fastq \
+    out=${outdir}/trimmed.fastq.gz \
+    minavgquality=6 \
+    ziplevel=9 \ 
+    "ref=${fref}" \
+    k=23 hdist=2 mink=10 hdist2=1 \
+    "stats=${outdir}/stats.txt" \ 
+    "bhist=${outdir}/bhist.txt" \
+    "qhist=${outdir}/qhist.txt" \ 
+    "qchist=${outdir}/qchist.txt" \
+    "aqhist=${outdir}/aqhist.txt" \ 
+    "bqhist=${outdir}/bqhist.txt" \
+    "lhist=${outdir}/lhist.txt" \
+    "gchist=${outdir}/gchist.txt"
