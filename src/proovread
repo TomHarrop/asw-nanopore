@@ -9,7 +9,6 @@ my_seqchunker="$(readlink -f bin/proovread/SeqChunker)"
 my_proovread="$(readlink -f bin/proovread/proovread)"
 
 # proovread function for chunks
-export -f run_proovread
 run_proovread () {
     local _input_chunk
     local _outdir
@@ -39,6 +38,7 @@ run_proovread () {
         --pre "${_chunk_outdir}/" \
         2> "${_proovread_log}"
 }
+export -f run_proovread
 
 # long read data
 long_reads="output/porechop_bbduk/trimmed.fastq.gz"
