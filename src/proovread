@@ -64,15 +64,14 @@ fi
 
 # extract reads to temporary files
 script_name="$(basename "${0}")"
-export TMPDIR="${outdir}"
-tmp_outdir="$(mktemp --tmpdir -d "${script_name}_tmp.XXXXXXXX")"
+tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
 export sr_100_tmp
 sr_100_tmp="${tmp_outdir}/sr_100.fq"
 export sr_150_tmp
 sr_150_tmp="${tmp_outdir}/sr_150.fq"
 
-zcat "${sr_100}" | head -n 10000 | gzip > "${sr_100_tmp}" &
-zcat "${sr_150}" | head -n 10000 | gzip > "${sr_150_tmp}" &
+zcat "${sr_100}" | head -n 10000 | gzip > "${sr_100_tmp}"
+zcat "${sr_150}" | head -n 10000 | gzip > "${sr_150_tmp}"
 
 # gunzip -c "${sr_100}" > "${sr_100_tmp}" &
 # gunzip -c "${sr_150}" > "${sr_150_tmp}" &
