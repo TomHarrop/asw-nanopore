@@ -11,12 +11,15 @@ my_proovread="$(readlink -f bin/proovread/proovread)"
 # proovread function for chunks
 run_proovread () {
     local _input_chunk
+    local _input_chunk_path
     local _outdir
     local _chunk_name
     local _chunk_outdir
     local _proovread_log
 
+    # files
     _input_chunk="${1}"
+    _input_chunk_path="$(readlink -f "${_input_chunk}")"
     _outdir="${2}"
 
     # make output directory for chunk
@@ -29,7 +32,7 @@ run_proovread () {
     # call proovread on chunk
     "${my_proovread}" \
         --threads 20 \
-        -l "${_input_chunk}" \
+        -l "${_input_chunk_path}" \
         -s "${sr_100_path}" -s "${sr_150_path}" \
         -u "${uutigs_path}" \
         --pre "${_chunk_outdir}/" \
@@ -84,6 +87,8 @@ sr_150_path="$(readlink -f "${sr_150_tmp}")"
 
 # copy uutigs to tmp folder for gumpy proovread
 uutigs_tmp="${tmp_outdir}/uutigs.fasta"
+printf "[ %s: Renaming fasta file to make proovread happy ]\n%s\n" \
+    "$(date)" "${uutigs_tmp}"
 cp "${uutigs}" "${uutigs_tmp}"
 export uutigs_path
 uutigs_path="$(readlink -f "${uutigs_tmp}")"
