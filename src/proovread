@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+export my_seqchunker
+my_seqchunker="$(readlink -f bin/proovread/SeqChunker)"
+
+export long_reads
+long_reads="output/porechop_bbduk/trimmed.fastq.gz"
+outdir="output/proovread"
+export chunk_folder="${outdir}/chunks"
+if [[ ! -e "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+if [[ ! -e "${chunk_folder}" ]]; then
+    mkdir -p "${chunk_folder}"
+fi
+
+
+# short reads
+sr_100="data/short_reads/pe100_filtered_trimmed.fastq.gz"
+sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
+
+# meraculous 51mer unitigs
+uutigs="data/unitigs/UUtigs.fa"
+
+# log files
+proovread_log="${outdir}/proovread.log"
+
+# generate a single <10Mbp chunk
+(
+cd "${chunk_folder}" || exit 1
+"${my_seqchunker}" -s 20M -l 1 \
+    -o long_reads_%03d.fq \
+    "${long_reads}"
+)
+
