@@ -96,5 +96,10 @@ find "${chunk_folder}" -name "*.fq" \
     -exec bash -c 'run_proovread "${0}" "${1}"' \
     {} "${outdir}" \;
 
+printf "[ %s: Waiting for proofread to finish ]\n" "$(date)"
+
+wait
+printf "[ %s: Done ]\n" "$(date)"
+
 # tidy up tempfiles
-rm -r "${tmp_outdir}"
+# rm -r "${tmp_outdir}"
