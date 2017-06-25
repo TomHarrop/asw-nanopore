@@ -17,6 +17,8 @@ fref+="bin/bbmap/resources/adapters_no_transposase.fa.gz"
 porechop_log="${outdir}/porechop.log"
 bbduk_log="${outdir}/bbduk.log"
 
+# filter av qual < 6
+# filter gc based on meraculous assembly (0.2999 GC, 0.0298 SD)
 printf "[ %s: Trimming and filtering ]\n" "$(date)"
 porechop -i "${input_reads}" --threads 20 \
     2> "${porechop_log}" \
@@ -24,6 +26,8 @@ porechop -i "${input_reads}" --threads 20 \
     in=stdin.fastq \
     "out=${outdir}/trimmed.fastq.gz" \
     minavgquality=6 \
+    mingc=0.24 \
+    maxgc=0.36 \
     ziplevel=9 \
     "ref=${fref}" \
     k=23 hdist=2 \
