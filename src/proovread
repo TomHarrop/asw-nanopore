@@ -3,8 +3,10 @@
 export my_seqchunker
 my_seqchunker="$(readlink -f bin/proovread/SeqChunker)"
 
-export long_reads
 long_reads="output/porechop_bbduk/trimmed.fastq.gz"
+export long_reads_path
+long_reads_path="$(readlink -f "${long_reads}")"
+
 outdir="output/proovread"
 export chunk_folder="${outdir}/chunks"
 if [[ ! -e "${outdir}" ]]; then
