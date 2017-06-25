@@ -32,6 +32,6 @@ proovread_log="${outdir}/proovread.log"
 cd "${chunk_folder}" || exit 1
 "${my_seqchunker}" -s 20M -l 1 \
     -o long_reads_%03d.fq \
-    "${long_reads}"
+    "${long_reads_path}"
 )
 
