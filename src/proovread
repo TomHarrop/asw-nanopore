@@ -1,12 +1,59 @@
 #!/usr/bin/env bash
 
-export my_seqchunker
-my_seqchunker="$(readlink -f bin/proovread/SeqChunker)"
+set -eu
 
+# proovread binaries
+export my_seqchunker
+export my_proovread
+my_seqchunker="$(readlink -f bin/proovread/SeqChunker)"
+my_proovread="$(readlink -f bin/proovread/proovread)"
+
+# proovread function for chunks
+export -f run_proovread
+run_proovread () {
+    local _input_chunk
+    local _outdir
+    local _chunk_name
+    local _chunk_outdir
+    local _proovread_log
+
+    _input_chunk="${1}"
+    _outdir="${2}"
+
+    # make output directory for chunk
+    _chunk_name="$(basename "${_input_chunk}" .fq)"
+    _chunk_outdir="${_outdir}/${_chunk_name}"
+    if [[ ! -e "${_chunk_outdir}" ]]; then
+        mkdir -p "${_chunk_outdir}"
+    fi
+
+    # log files
+    _proovread_log="${_chunk_outdir}/proovread.log"
+
+    # call proovread on chunk
+    "${my_proovread}" \
+        --threads 20 \
+        -l "${_input_chunk}" \
+        -s "${sr_100_tmp}" -s "${sr_150_tmp}" \
+        -u "${uutigs}" \
+        --pre "${_chunk_outdir}/" \
+        2> "${_proovread_log}"
+}
+
+# long read data
 long_reads="output/porechop_bbduk/trimmed.fastq.gz"
 export long_reads_path
 long_reads_path="$(readlink -f "${long_reads}")"
 
+# short read data
+sr_100="data/short_reads/pe100_filtered_trimmed.fastq.gz"
+sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
+
+# meraculous 51mer unitigs
+export uutigs
+uutigs="data/unitigs/UUtigs.fa"
+
+# setup outdirs
 outdir="output/proovread"
 export chunk_folder="${outdir}/chunks"
 if [[ ! -e "${outdir}" ]]; then
@@ -16,24 +63,36 @@ if [[ ! -e "${chunk_folder}" ]]; then
     mkdir -p "${chunk_folder}"
 fi
 
+# extract reads to temporary files
+script_name="$(basename "${0}")"
+tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
+export sr_100_tmp
+sr_100_tmp="${tmp_outdir}/sr_100.fq"
+export sr_150_tmp
+sr_150_tmp="${tmp_outdir}/sr_150.fq"
 
-# short reads
-sr_100="data/short_reads/pe100_filtered_trimmed.fastq.gz"
-sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
+zcat "${sr_100}" | head -n 10000 | gzip > "${sr_100_tmp}" &
+zcat "${sr_150}" | head -n 10000 | gzip > "${sr_150_tmp}" &
 
-# meraculous 51mer unitigs
-uutigs="data/unitigs/UUtigs.fa"
+# gunzip -c "${sr_100}" > "${sr_100_tmp}" &
+# gunzip -c "${sr_150}" > "${sr_150_tmp}" &
 
-# log files
-proovread_log="${outdir}/proovread.log"
+printf "[ %s: Gunzipping short reads to %s ]\n" "$(date)" "${tmp_outdir}"
+wait
 
 # generate a single <10Mbp chunk
-(
-cd "${chunk_folder}" || exit 1
-gunzip -c "${long_reads_path}" > long_reads.fa
-"${my_seqchunker}" -s 20M -l 1 \
-    -o long_reads_%03d.fq \
-    long_reads.fa
-rm long_reads.fa
-)
+# printf "[ %s: Chunking long reads to %s ]\n" "$(date)" "${chunk_folder}"
+# (
+# cd "${chunk_folder}" || exit 1
+# gunzip -c "${long_reads_path}" > long_reads.fa
+# "${my_seqchunker}" -s 20M -l 1 \
+#     -o long_reads_%03d.fq \
+#     long_reads.fa
+# rm long_reads.fa
+# )
 
+# run proovread on chunks
+printf "[ %s: Launching proofread ]\n" "$(date)"
+find "${chunk_folder}" -name "*.fq" \
+    -exec bash -c 'run_proovread "${0}" "${1}"' \
+    {} "${outdir}" \;
