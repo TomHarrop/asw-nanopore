@@ -32,6 +32,7 @@ run_proovread () {
     # call proovread on chunk
     "${my_proovread}" \
         --threads 20 \
+        --overwrite \
         -l "${_input_chunk}" \
         -s "${sr_100_tmp}" -s "${sr_150_tmp}" \
         -u "${uutigs}" \
