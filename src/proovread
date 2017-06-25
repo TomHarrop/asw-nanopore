@@ -68,8 +68,8 @@ tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
 sr_100_tmp="${tmp_outdir}/sr_100.fq"
 sr_150_tmp="${tmp_outdir}/sr_150.fq"
 
-zcat "${sr_100}" | head -n 10000 | gzip > "${sr_100_tmp}"
-zcat "${sr_150}" | head -n 10000 | gzip > "${sr_150_tmp}"
+zcat "${sr_100}" | head -n 10000 > "${sr_100_tmp}"
+zcat "${sr_150}" | head -n 10000 > "${sr_150_tmp}"
 
 # gunzip -c "${sr_100}" > "${sr_100_tmp}" &
 # gunzip -c "${sr_150}" > "${sr_150_tmp}" &
