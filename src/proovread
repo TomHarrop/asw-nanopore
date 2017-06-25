@@ -64,7 +64,8 @@ fi
 
 # extract reads to temporary files
 script_name="$(basename "${0}")"
-tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
+export TMPDIR="${outdir}"
+tmp_outdir="$(mktemp --tmpdir -d "${script_name}_tmp.XXXXXXXX")"
 export sr_100_tmp
 sr_100_tmp="${tmp_outdir}/sr_100.fq"
 export sr_150_tmp
