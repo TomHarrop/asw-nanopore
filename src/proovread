@@ -50,8 +50,6 @@ sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
 
 # meraculous 51mer unitigs
 uutigs="data/unitigs/UUtigs.fa"
-export uutigs_path
-uutigs_path="$(readlink -f "${uutigs}")"
 
 # setup outdirs
 outdir="output/proovread"
@@ -83,6 +81,12 @@ export sr_100_path
 export sr_150_path
 sr_100_path="$(readlink -f "${sr_100_tmp}")"
 sr_150_path="$(readlink -f "${sr_150_tmp}")"
+
+# copy uutigs to tmp folder for gumpy proovread
+uutigs_tmp="${tmp_outdir}/uutigs.fasta"
+cp "${uutigs}" "${uutigs_tmp}"
+export uutigs_path
+uutigs_path="$(readlink -f "${uutigs_tmp}")"
 
 # generate a single <10Mbp chunk
 # printf "[ %s: Chunking long reads ]\n%s\n" "$(date)" "${chunk_folder}"
