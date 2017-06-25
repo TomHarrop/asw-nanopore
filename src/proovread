@@ -22,22 +22,20 @@ run_proovread () {
     # make output directory for chunk
     _chunk_name="$(basename "${_input_chunk}" .fq)"
     _chunk_outdir="${_outdir}/${_chunk_name}"
-    if [[ ! -e "${_chunk_outdir}" ]]; then
-        mkdir -p "${_chunk_outdir}"
-    fi
 
     # log files
-    _proovread_log="${_chunk_outdir}/proovread.log"
+    _proovread_log="${_outdir}/${_chunk_name}.log"
 
     # call proovread on chunk
     "${my_proovread}" \
         --threads 20 \
-        --overwrite \
         -l "${_input_chunk}" \
         -s "${sr_100_tmp}" -s "${sr_150_tmp}" \
         -u "${uutigs}" \
         --pre "${_chunk_outdir}/" \
         2> "${_proovread_log}"
+
+    mv "${_proovread_log}" "${_chunk_outdir}/proofread.log"
 }
 export -f run_proovread
 
@@ -78,11 +76,11 @@ zcat "${sr_150}" | head -n 10000 | gzip > "${sr_150_tmp}" &
 # gunzip -c "${sr_100}" > "${sr_100_tmp}" &
 # gunzip -c "${sr_150}" > "${sr_150_tmp}" &
 
-printf "[ %s: Gunzipping short reads to %s ]\n" "$(date)" "${tmp_outdir}"
+printf "[ %s: Gunzipping short reads ]\n%s\n" "$(date)" "${tmp_outdir}"
 wait
 
 # generate a single <10Mbp chunk
-# printf "[ %s: Chunking long reads to %s ]\n" "$(date)" "${chunk_folder}"
+# printf "[ %s: Chunking long reads ]\n%s\n" "$(date)" "${chunk_folder}"
 # (
 # cd "${chunk_folder}" || exit 1
 # gunzip -c "${long_reads_path}" > long_reads.fa
@@ -97,3 +95,6 @@ printf "[ %s: Launching proofread ]\n" "$(date)"
 find "${chunk_folder}" -name "*.fq" \
     -exec bash -c 'run_proovread "${0}" "${1}"' \
     {} "${outdir}" \;
+
+# tidy up tempfiles
+rm -r "${tmp_outdir}"
