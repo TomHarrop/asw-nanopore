@@ -20,6 +20,7 @@ porechop -i "${input_reads}" --threads 20 \
     | bin/bbmap/bbduk.sh threads=20 -Xmx100G \
     in=stdin.fastq \
     "out=${outdir}/trimmed.fastq.gz" \
+    minlength=500 \
     minavgquality=6 \
     mingc=0.24 \
     maxgc=0.36 \
