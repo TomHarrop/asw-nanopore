@@ -85,11 +85,16 @@ export sr_150_path
 sr_100_path="$(readlink -f "${sr_100_tmp}")"
 sr_150_path="$(readlink -f "${sr_150_tmp}")"
 
-# copy uutigs to tmp folder for gumpy proovread
+# filter uutigs to contigs > 500 b (test with 1 kb)
 uutigs_tmp="${tmp_outdir}/uutigs.fasta"
-printf "[ %s: Renaming fasta file to make proovread happy ]\n%s\n" \
+
+printf "[ %s: Removing UUtigs < 1000 b ]\n%s\n" \
     "$(date)" "${uutigs_tmp}"
-cp "${uutigs}" "${uutigs_tmp}"
+bin/bbmap/reformat.sh \
+    "in=${uutigs}" \
+    "out=${uutigs_tmp}" \
+    minlength=1000
+
 export uutigs_path
 uutigs_path="$(readlink -f "${uutigs_tmp}")"
 
