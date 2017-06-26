@@ -15,5 +15,5 @@ log_file="${outdir}/reformat.log"
 bin/bbmap/reformat.sh \
     "in=${sr_150}" \
     "out=${sr_150_subsampled}" \
-    samplebasestarget=30000000000 \
+    samplerate=0.3 \
     2> "${log_file}"
