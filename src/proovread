@@ -31,7 +31,7 @@ run_proovread () {
 
     # call proovread on chunk
     "${my_proovread}" \
-        --threads 20 \
+        --threads 50 \
         -l "${_input_chunk_path}" \
         -s "${sr_150_path}" \
         -u "${uutigs_path}" \
@@ -70,26 +70,27 @@ script_name="$(basename "${0}")"
 tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
 uutigs_tmp="${tmp_outdir}/uutigs.fasta"
 
-printf "[ %s: Removing UUtigs < 1000 b ]\n%s\n" \
+printf "[ %s: Removing UUtigs < 500 b ]\n%s\n" \
     "$(date)" "${uutigs_tmp}"
 bin/bbmap/reformat.sh \
     "in=${uutigs}" \
     "out=${uutigs_tmp}" \
-    minlength=1000
+    minlength=500
 
 export uutigs_path
 uutigs_path="$(readlink -f "${uutigs_tmp}")"
 
-# generate a single <10Mbp chunk
-# printf "[ %s: Chunking long reads ]\n%s\n" "$(date)" "${chunk_folder}"
-# (
-# cd "${chunk_folder}" || exit 1
-# gunzip -c "${long_reads_path}" > long_reads.fa
-# "${my_seqchunker}" -s 20M -l 1 \
-#     -o long_reads_%03d.fq \
-#     long_reads.fa
-# rm long_reads.fa
-# )
+# generate 1G chunks
+printf "[ %s: Chunking long reads ]\n%s\n" "$(date)" "${chunk_folder}"
+(
+cd "${chunk_folder}" || exit 1
+gunzip -c "${long_reads_path}" > long_reads.fa
+"${my_seqchunker}" \
+    --chunk-size 1G \
+    -o long_reads_%03d.fq \
+    long_reads.fa
+rm long_reads.fa
+)
 
 # run proovread on chunks
 printf "[ %s: Launching proofread ]\n" "$(date)"
@@ -103,4 +104,4 @@ wait
 printf "[ %s: Done ]\n" "$(date)"
 
 # tidy up tempfiles
-# rm -r "${tmp_outdir}"
+rm -r "${tmp_outdir}"
