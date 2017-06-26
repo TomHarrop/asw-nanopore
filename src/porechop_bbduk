@@ -2,23 +2,18 @@
 
 set -eu
 
-input_reads="data/20170621_0351_ASW_12_05X_SPRI/merged.fq.gz"
+input_reads="data/minion_reads/merged/merged.fq.gz"
 outdir="output/porechop_bbduk"
 if [[ ! -e "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
-
-# bbduk contaminants
- fref="bin/bbmap/resources/phix174_ill.ref.fa.gz,"
-fref+="bin/bbmap/resources/sequencing_artifacts.fa.gz,"
-fref+="bin/bbmap/resources/adapters_no_transposase.fa.gz"
 
 # log files
 porechop_log="${outdir}/porechop.log"
 bbduk_log="${outdir}/bbduk.log"
 
 # filter av qual < 6
-# filter gc based on meraculous assembly (0.2999 GC, 0.0298 SD)
+# filter gc based on meraculous assembly (0.3019 GC, 0.0298 SD)
 printf "[ %s: Trimming and filtering ]\n" "$(date)"
 porechop -i "${input_reads}" --threads 20 \
     2> "${porechop_log}" \
@@ -29,8 +24,6 @@ porechop -i "${input_reads}" --threads 20 \
     mingc=0.24 \
     maxgc=0.36 \
     ziplevel=9 \
-    "ref=${fref}" \
-    k=23 hdist=2 \
     "stats=${outdir}/stats.txt" \
     "bhist=${outdir}/bhist.txt" \
     "qhist=${outdir}/qhist.txt" \
