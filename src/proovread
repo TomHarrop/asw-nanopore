@@ -33,7 +33,7 @@ run_proovread () {
     "${my_proovread}" \
         --threads 20 \
         -l "${_input_chunk_path}" \
-        -s "${sr_100_path}" -s "${sr_150_path}" \
+        -s "${sr_150_path}" \
         -u "${uutigs_path}" \
         --pre "${_chunk_outdir}/" \
         2> "${_proovread_log}"
@@ -48,8 +48,9 @@ export long_reads_path
 long_reads_path="$(readlink -f "${long_reads}")"
 
 # short read data
-sr_100="data/short_reads/pe100_filtered_trimmed.fastq.gz"
-sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
+sr_150="output/subsampled_reads/pe_150.fq"
+export sr_150_path
+sr_150_path="$(readlink -f "${sr_150}")"
 
 # meraculous 51mer unitigs
 uutigs="data/unitigs/UUtigs.fa"
@@ -64,28 +65,9 @@ if [[ ! -e "${chunk_folder}" ]]; then
     mkdir -p "${chunk_folder}"
 fi
 
-# extract reads to temporary files
+# filter uutigs to contigs > 500 b (test with 1 kb)
 script_name="$(basename "${0}")"
 tmp_outdir="$(mktemp "--tmpdir=${outdir}" -d "${script_name}_tmp.XXXXXXXX")"
-sr_100_tmp="${tmp_outdir}/sr_100.fq"
-sr_150_tmp="${tmp_outdir}/sr_150.fq"
-
-zcat "${sr_100}" | head -n 10000 > "${sr_100_tmp}"
-zcat "${sr_150}" | head -n 10000 > "${sr_150_tmp}"
-
-# gunzip -c "${sr_100}" > "${sr_100_tmp}" &
-# gunzip -c "${sr_150}" > "${sr_150_tmp}" &
-
-printf "[ %s: Gunzipping short reads ]\n%s\n" "$(date)" "${tmp_outdir}"
-wait
-
-# get full path to short reads for gumpy proovread
-export sr_100_path
-export sr_150_path
-sr_100_path="$(readlink -f "${sr_100_tmp}")"
-sr_150_path="$(readlink -f "${sr_150_tmp}")"
-
-# filter uutigs to contigs > 500 b (test with 1 kb)
 uutigs_tmp="${tmp_outdir}/uutigs.fasta"
 
 printf "[ %s: Removing UUtigs < 1000 b ]\n%s\n" \

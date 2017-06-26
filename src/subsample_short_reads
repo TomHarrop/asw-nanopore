@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -eu
+
+sr_150="data/short_reads/pe150_filtered_trimmed.fastq.gz"
+
+outdir="output/subsampled_reads"
+if [[ ! -e "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+
+sr_150_subsampled="${outdir}/pe_150.fq"
+log_file="${outdir}/reformat.log"
+
+bin/bbmap/reformat.sh \
+    "in=${sr_150}" \
+    "out=${sr_150_subsampled}" \
+    samplebasestarget=30000000000 \
+    2> "${log_file}"
