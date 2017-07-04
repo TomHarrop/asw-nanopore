@@ -34,11 +34,11 @@ fi
 # )
 
 # long read file-of-filenames, ok then...?
-mpet="${mpet_r1}.fa_paired.fa"
+mpet="${mpet_r1}_paired.fa"
 mpet_path="$(readlink -f "${mpet}")"
 fof="$(mktemp --suffix=.txt)"
 cat <<- _EOF_ > "${fof}"
-${mpet}
+${mpet_path}
 _EOF_
 
 # IN THE LINKS MANUAL:
