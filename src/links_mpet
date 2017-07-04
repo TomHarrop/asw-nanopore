@@ -38,7 +38,7 @@ mpet="${mpet_r1}.fa_paired.fa"
 mpet_path="$(readlink -f "${mpet}")"
 fof="$(mktemp --suffix=.txt)"
 cat <<- _EOF_ > "${fof}"
-${mpet_path}
+${mpet}
 _EOF_
 
 # IN THE LINKS MANUAL:
