@@ -7,6 +7,8 @@ printf "[ %s: Trim and demux LMP reads with bbtools ]\n" \
 
 # make outdir
 outdir="output/long_mate_pairs"
+output_fq="${outdir}/lmp.fq.gz"
+output_fa="${outdir}/lmp.fa"
 if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
@@ -33,9 +35,9 @@ printf "[ %s: Copying reads to %s ]\n" "$(date)" "${tmp_outdir}"
 wait
 
 # prepare bbduk command
-ref="bin/bbtools/resources/adapters_no_transposase.fa.gz"
+ref="bin/bbmap/resources/adapters_no_transposase.fa.gz"
 
-cmd1=( bin/bbtools/bbduk.sh
+cmd1=( bin/bbmap/bbduk.sh
         "in=${fq_r1}"
         "in2=${fq_r2}"
         "out=stdout.fq"
@@ -53,7 +55,7 @@ cmd1=( bin/bbtools/bbduk.sh
         "lhist=${outdir}/lhist.txt" 
         "gchist=${outdir}/gchist.txt" )
 
-cmd2=( bin/bbtools/splitnextera.sh
+cmd2=( bin/bbmap/splitnextera.sh
            "in=stdin.fq"
            mask
            interleaved
@@ -79,6 +81,17 @@ splitnextera_err="${outdir}/splitnextera.err"
 printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
 "${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
 
+# expand and convert to fasta for LINKS
+reformat_err="${outdir}/reformat.err"
+cmd3=( bin/bbmap/reformat.sh
+           "in=${output_fq}"
+           "out=${output_fa}" )
+
+printf "[ %s: Converting output to fasta ]\n" "$(date)"
+printf "%s " "${cmd3[@]//+([[:blank:]])/ }"
+
+"${cmd3[@]}" 2> "${reformat_err}"
+
 # log metadata
 metadata_file="${outdir}/METADATA.csv"
 printf "[ %s: Logging metadata ]\n" "$(date)"
@@ -88,8 +101,8 @@ cat <<- _EOF_ > "${metadata_file}"
     branch,$(git rev-parse --abbrev-ref HEAD)
     hash,$(git rev-parse HEAD)
     date,$(date +%F)
-    bbduk revision,$(bin/bbtools/bbduk.sh 2>&1 | sed '3q;d')
-    splitnextera revision,$(bin/bbtools/splitnextera.sh 2>&1 | sed '3q;d')
+    bbduk revision,$(bin/bbmap/bbduk.sh 2>&1 | sed '3q;d')
+    splitnextera revision,$(bin/bbmap/splitnextera.sh 2>&1 | sed '3q;d')
 _EOF_
 
 printf "[ %s: Removing temporary files ]\n" "$(date)"
