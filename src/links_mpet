@@ -28,25 +28,34 @@ if [[ ! -e "${outdir}" ]]; then
 fi
 
 # run weird LINKS tool
-(
-cd "${outdir}" || exit 1
-"${make_mpet}" "${mpet_r1_path}" "${mpet_r2_path}" 0
-)
-
-exit 1
+# (
+# cd "${outdir}" || exit 1
+# "${make_mpet}" "${mpet_r1_path}" "${mpet_r2_path}" 0
+# )
 
 # long read file-of-filenames, ok then...?
+mpet="${mpet_r1}.fa_paired.fa"
+mpet_path="$(readlink -f "${mpet}")"
 fof="$(mktemp --suffix=.txt)"
 cat <<- _EOF_ > "${fof}"
-${long_read_path}
+${mpet_path}
 _EOF_
+
+# IN THE LINKS MANUAL:
+# When doing so, ensure that -t is set to extract at least ~5 kmer pairs/MPET
+# pair As a rule of thumb, -l should be set to at least double that value (-l
+# 10 in this case)
+# with minimum length of 40 b reads in the splitnextera output, i calculate
+# that you could generate 13 15-mers from a 40 b read, so I set l to 25.
 
 (
 cd "${outdir}" || exit 1
 "${links}" \
     -f "${contigs_path}" \
     -s "${fof}" \
-    -d 500,1000,2000,3000,4000,5000 \
-    -b "meraculous61_ONT" \
+    -m 1 \
+    -d 3103 \
+    -l 25 \
+    -b "meraculous71_diploid_mpet" \
     2> links.log
 )
