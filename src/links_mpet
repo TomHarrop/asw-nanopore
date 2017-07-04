@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -eu
+
+export links
+export make_mpet
+export contigs_path
+export mpet_r1_path
+export mpet_r2_path
+export fof
+export outdir
+
+links="$(readlink -f bin/links/LINKS)"
+make_mpet="$(readlink -f bin/links/tools/makeMPETOutput2EQUALfiles.pl)"
+
+mpet_r1=output/long_mate_pairs/lmp_r1.fa
+mpet_r2=output/long_mate_pairs/lmp_r2.fa
+mpet_r1_path="$(readlink -f "${mpet_r1}")"
+mpet_r2_path="$(readlink -f "${mpet_r2}")"
+
+contigs=data/contigs/final.scaffolds.fa
+contigs_path="$(readlink -f "${contigs}")"
+
+# output
+outdir="output/links_mpet"
+if [[ ! -e "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+
+# run weird LINKS tool
+(
+cd "${outdir}" || exit 1
+"${make_mpet}" "${mpet_r1_path}" "${mpet_r2_path}" 0
+)
+
+exit 1
+
+# long read file-of-filenames, ok then...?
+fof="$(mktemp --suffix=.txt)"
+cat <<- _EOF_ > "${fof}"
+${long_read_path}
+_EOF_
+
+(
+cd "${outdir}" || exit 1
+"${links}" \
+    -f "${contigs_path}" \
+    -s "${fof}" \
+    -d 500,1000,2000,3000,4000,5000 \
+    -b "meraculous61_ONT" \
+    2> links.log
+)
