@@ -8,7 +8,8 @@ printf "[ %s: Trim and demux LMP reads with bbtools ]\n" \
 # make outdir
 outdir="output/long_mate_pairs"
 output_fq="${outdir}/lmp.fq.gz"
-output_fa="${outdir}/lmp.fa"
+output_fa1="${outdir}/lmp_r1.fa"
+output_fa2="${outdir}/lmp_r2.fa"
 if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
@@ -85,7 +86,8 @@ printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
 reformat_err="${outdir}/reformat.err"
 cmd3=( bin/bbmap/reformat.sh
            "in=${output_fq}"
-           "out=${output_fa}" )
+           "out=${output_fa1}"
+           "out2=${output_fa2}" )
 
 printf "[ %s: Converting output to fasta ]\n" "$(date)"
 printf "%s " "${cmd3[@]//+([[:blank:]])/ }"
