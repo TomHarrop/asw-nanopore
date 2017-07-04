@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -eu
+
+export links
+export contigs_path
+export fof
+export outdir
+
+links="$(readlink -f bin/links/LINKS)"
+
+long_reads=output/trimmed_reads/long_reads.trimmed_sorted.fastq
+long_read_path="$(readlink -f "${long_reads}")"
+
+contigs=data/contigs/final.scaffolds.fa
+contigs_path="$(readlink -f "${contigs}")"
+
+# output
+outdir="output/links"
+if [[ ! -e "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+
+# long read file-of-filenames, ok then...?
+fof="$(mktemp --suffix=.txt)"
+cat <<- _EOF_ > "${fof}"
+${long_read_path}
+_EOF_
+
+(
+cd "${outdir}" || exit 1
+"${links}" \
+    -f "${contigs_path}" \
+    -s "${fof}" \
+    -d 500,1000,2000,3000,4000,5000 \
+    -b "meraculous61_ONT" \
+    2> links.log
+)
