@@ -22,12 +22,9 @@ printf "\tfq_l2r1: %s\n\tfq_l3r1: %s\n\tfq_l2r2: %s\n\tfq_l3r2: %s\n" \
 
 # concatenate the pairs to temporary files
 script_name="$(basename "${0}")"
-tmp_outdir="$(mktemp --tmpdir -p "${outdir}" "${script_name}_tmp.XXXXXXXX")"
+tmp_outdir="$(mktemp -d -p "${outdir}" "${script_name}_tmp.XXXXXXXX")"
 fq_r1="${tmp_outdir}/r1.fastq.gz"
 fq_r2="${tmp_outdir}/r2.fastq.gz"
-
-# zcat "${fq_l2r1}" | head -n 10000 | gzip > "${fq_r1}" &
-# zcat "${fq_l2r2}" | head -n 10000 | gzip > "${fq_r2}" &
 
 cat "${fq_l2r1}" "${fq_l3r1}" > "${fq_r1}" &
 cat "${fq_l2r2}" "${fq_l3r2}" > "${fq_r2}" &
@@ -56,8 +53,7 @@ cmd1=( bin/bbtools/bbduk.sh
         "lhist=${outdir}/lhist.txt" 
         "gchist=${outdir}/gchist.txt" )
 
-cmd2=( bin/bbtools/splitnextera.sh "threads=${shared_cpus}"
-           "-Xmx${java_ram}" 
+cmd2=( bin/bbtools/splitnextera.sh
            "in=stdin.fq"
            mask
            interleaved
